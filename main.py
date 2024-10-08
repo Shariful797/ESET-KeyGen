@@ -51,7 +51,7 @@ args = {
     'skip_update_check': False,
     'no_logo': False,
     'disable_progress_bar': False,
-    'disable_output_file': False,
+    'disable_output_file': True,
     'repeat': 1
 }
 # -----------------------------------------------------------------------------------------------
@@ -387,24 +387,23 @@ def main(disable_exit=False):
                         EV_obj.sendRequestForVPNCodes()
                         vpn_codes = EV_obj.getVPNCodes()
                         if not args['custom_email_api']:
-                            vpn_codes_line = '\n\n'.join([f'Key: `{vpn_code}`' for vpn_code in vpn_codes])
+                            vpn_codes_line = ', '.join(vpn_codes)
                             output_line = '\n'.join([
                                 '',
                                 '-------------------------------------------------',
-                                f'Email: `{email_obj.email}`',
-                                f'Password: {eset_password}',
+                                f'Account Email: {email_obj.email}',
+                                f'Account Password: {eset_password}',
                                 '',
-                                f'Product Name: {license_name}',
-                                f'Key: {license_key}',
-                                f'Exp: {license_out_date}',
+                                f'License Name: {license_name}',
+                                f'License Key: {license_key}',
+                                f'License Out Date: {license_out_date}',
                                 '',
-                                'VPN Codes:',
-                                f'{vpn_codes_line}',
+                                f'VPN Codes: {vpn_codes_line}',
                                 '-------------------------------------------------',
-                                '',
-                                '@FreeLicense4All'
+                                ''
                             ])
-                            bot.send_message(614469986, output_line)
+                            output_line = f'\n Product Name: {license_name}\nExp: ||{license_out_date}||\n Key: `{vpn_codes_line}`\n'
+                            bot.send_message(614469986, output_line + "@FreeLicense4All")
 
             # ESET ProtectHub
             elif args['protecthub_account'] or args['endpoint_key']:
