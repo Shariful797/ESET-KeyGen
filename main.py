@@ -403,8 +403,15 @@ def main(disable_exit=False):
                                 ''
                             ])
                             output_line = f'\n Product Name: {license_name}\nExp: ||{license_out_date}||\n Key: `{vpn_codes_line}`\n'
-                            bot.send_message(614469986, output_line + "@FreeLicense4All")
-
+                            print(output_line)
+                            try:
+              							    bot.send_message(
+              							        chat_id=614469986,
+              							        text=output_line + "@FreeLicense4All",
+              							        parse_mode='MARKDOWNv2'  # or 'HTML' if you prefer
+              							    )
+              							except Exception as e:
+              							    print(f"Error sending message: {e}")
             # ESET ProtectHub
             elif args['protecthub_account'] or args['endpoint_key']:
                 EPHR_obj = EPHR(email_obj, eset_password, driver)
