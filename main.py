@@ -396,24 +396,22 @@ def main(disable_exit=False):
                             photo_path = 'img/ESET_VPN.png'
                             stay_tuned = "Stay Tuned"
                             mention = "@FreeLicense4All"
-                            vpn_codes_line = '\n'.join([f'Key: `{vpn_code}`' for vpn_code in vpn_codes])
+                            vpn_codes_line = ', '.join(vpn_codes)
                             output_line = '\n'.join([
                                 '',
-                                '-------------------------------------------------',
-                                f'Account Email: `{email_obj.email}`',
-                                f'Account Password: `{eset_password}`',
+                                f'Email: `{email_obj.email}`',
+                                f'Password: `{eset_password}`',
                                 '',
-                                f'License Name: `{license_name}`',
-                                f'License Key: `{license_key}`',
-                                f'License Out Date: `{license_out_date}`',
+                                f'Product Name: ||{license_name}||',
+                                f'Exp: ||{license_out_date}||',
+                                f'Key: `{license_key}`',
                                 '',
                                 f'VPN Codes: {vpn_codes_line}',
-                                '-------------------------------------------------',
                                 ''
                             ])
                             print(output_line)
                             #full_message = f"{vpn_title}\n{vpn_sub_title}\n\n\n{vpn_codes_line}\n\n\n{important_note}\n\n\n{proof}\n\n\n{stay_tuned}\n{mention}\n"
-                            full_message = f"{vpn_title}\n{vpn_sub_title}\n\n\n{vpn_codes_line}\n\n\n{stay_tuned}\n{mention}\n"
+                            full_message = f"{vpn_title}\n{vpn_sub_title}\n\n\n{output_line}\n\n\n{stay_tuned}\n{mention}\n"
                             try:
                                 with open(photo_path, 'rb') as photo:
                                     bot.send_photo(chat_id=614469986, photo=photo, caption=full_message, parse_mode='MARKDOWNv2')
