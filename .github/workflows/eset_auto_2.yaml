@@ -74,13 +74,18 @@ jobs:
               generate_accounts ${ACCOUNT} &
               generate_keys ${KEY}
               wait
-              # Handle outputs
+              echo "Account:" >> $GITHUB_STEP_SUMMARY
+              cat ./*ACCOUNTS.txt >> $GITHUB_STEP_SUMMARY
+              echo -e "\nKey:" >> $GITHUB_STEP_SUMMARY
+              cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY
           elif [[ ${ACCOUNT} -gt 0 ]]; then
               generate_accounts ${ACCOUNT}
-              # Handle outputs
+              echo -e "\nAccount:" >> $GITHUB_STEP_SUMMARY
+              cat ./*ACCOUNTS.txt >> $GITHUB_STEP_SUMMARY
           elif [[ ${KEY} -gt 0 ]]; then
               generate_keys ${KEY}
-              # Handle outputs
+              echo -e "\nKey:" >> $GITHUB_STEP_SUMMARY
+              cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY
           else
               echo "No accounts or keys to generate." >> $GITHUB_STEP_SUMMARY
           fi
