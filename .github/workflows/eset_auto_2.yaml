@@ -70,7 +70,7 @@ jobs:
           }
           
           # Generate based on input parameters
-          if [[ ${ACCOUNT} -gt 0 && ${KEY} -gt 0 ]]; then
+          if [[ ${ACCOUNT} -ne 0 && ${KEY} -ne 0 ]]; then
               generate_accounts ${ACCOUNT} &
               generate_keys ${KEY}
               wait
@@ -78,11 +78,11 @@ jobs:
               cat ./*ACCOUNTS.txt >> $GITHUB_STEP_SUMMARY
               echo -e "\nKey:" >> $GITHUB_STEP_SUMMARY
               cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY
-          elif [[ ${ACCOUNT} -gt 0 ]]; then
+          elif [[ ${ACCOUNT} -ne 0 ]]; then
               generate_accounts ${ACCOUNT}
               echo -e "\nAccount:" >> $GITHUB_STEP_SUMMARY
               cat ./*ACCOUNTS.txt >> $GITHUB_STEP_SUMMARY
-          elif [[ ${KEY} -gt 0 ]]; then
+          elif [[ ${KEY} -ne 0 ]]; then
               generate_keys ${KEY}
               echo -e "\nKey:" >> $GITHUB_STEP_SUMMARY
               cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY
