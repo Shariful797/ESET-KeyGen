@@ -37,9 +37,8 @@ jobs:
   GenerateKey:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
+      #- name: Checkout repository
+      #  uses: actions/checkout@v4
       - name: Generating Key
         run: |
           ACCOUNT=${{ github.event.inputs.account }}
