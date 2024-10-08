@@ -1,4 +1,3 @@
-#for Telegram bot
 import telebot
 
 from modules.EmailAPIs import *
@@ -52,7 +51,7 @@ args = {
     'skip_update_check': False,
     'no_logo': False,
     'disable_progress_bar': False,
-    'disable_output_file': True,
+    'disable_output_file': False,
     'repeat': 1
 }
 # -----------------------------------------------------------------------------------------------
@@ -284,7 +283,6 @@ def main(disable_exit=False):
                 pass
         # initialization and configuration of everything necessary for work            
         driver = None
-        #for Telegram bot
         token_value = args['token']
         bot = telebot.TeleBot(token_value, parse_mode='MARKDOWNv2')
         webdriver_path = None
@@ -389,30 +387,25 @@ def main(disable_exit=False):
                         EV_obj.sendRequestForVPNCodes()
                         vpn_codes = EV_obj.getVPNCodes()
                         if not args['custom_email_api']:
-                            photo_path = 'img/ESET_VPN.png'
-                            stay_tuned = "Stay Tuned"
-                            mention = "@FreeLicense4All"
-                            vpn_codes_line = ', '.join(vpn_codes)
+                            vpn_codes_line = '\n\n'.join([f'Key: `{vpn_code}`' for vpn_code in vpn_codes])
                             output_line = '\n'.join([
                                 '',
+                                '-------------------------------------------------',
                                 f'Email: `{email_obj.email}`',
-                                f'Password: `{eset_password}`',
+                                f'Password: {eset_password}',
                                 '',
-                                f'Product Name: ||{license_name}||',
-                                f'Exp: ||{license_out_date}||',
-                                f'Key: `{license_key}`',
+                                f'Product Name: {license_name}',
+                                f'Key: {license_key}',
+                                f'Exp: {license_out_date}',
                                 '',
-                                f'VPN Codes: {vpn_codes_line}',
-                                ''
+                                'VPN Codes:',
+                                f'{vpn_codes_line}',
+                                '-------------------------------------------------',
+                                '',
+                                '@FreeLicense4All'
                             ])
-                            print(output_line)
-                            #full_message = f"{vpn_title}\n{vpn_sub_title}\n\n\n{vpn_codes_line}\n\n\n{important_note}\n\n\n{proof}\n\n\n{stay_tuned}\n{mention}\n"
-                            full_message = f"\n{output_line}\n\n\n{stay_tuned}\n{mention}\n"
-                            try:
-                                with open(photo_path, 'rb') as photo:
-                                    bot.send_photo(chat_id=614469986, photo=photo, caption=full_message, parse_mode='MARKDOWNv2')
-                            except Exception as e:
-                                print(f"Error sending photo: {e}")
+                            bot.send_message(614469986, output_line)
+
             # ESET ProtectHub
             elif args['protecthub_account'] or args['endpoint_key']:
                 EPHR_obj = EPHR(email_obj, eset_password, driver)
