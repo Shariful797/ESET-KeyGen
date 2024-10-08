@@ -387,21 +387,6 @@ def main(disable_exit=False):
                         EV_obj.sendRequestForVPNCodes()
                         vpn_codes = EV_obj.getVPNCodes()
                         if not args['custom_email_api']:
-                            vpn_codes_line = ', '.join(vpn_codes)
-                            output_line = '\n'.join([
-                                '',
-                                '-------------------------------------------------',
-                                f'Account Email: {email_obj.email}',
-                                f'Account Password: {eset_password}',
-                                '',
-                                f'License Name: {license_name}',
-                                f'License Key: {license_key}',
-                                f'License Out Date: {license_out_date}',
-                                '',
-                                f'VPN Codes: {vpn_codes_line}',
-                                '-------------------------------------------------',
-                                ''
-                            ])
                             vpn_title = "ESET VPN Free License Key for 30 days"
                             vpn_sub_title = "_Over 60 locations to choose\_"
                             proof = "Comment activation Screenshot as of proof."
@@ -413,23 +398,28 @@ def main(disable_exit=False):
                             output_line = '\n'.join([
                                 '',
                                 '-------------------------------------------------',
-                                f'Account Email: {email_obj.email}',
-                                f'Account Password: {eset_password}',
+                                f'Email: `{email_obj.email}`',
+                                f'Password: `{eset_password}`',
                                 '',
-                                f'License Name: {license_name}',
-                                f'License Key: {license_key}',
-                                f'License Out Date: {license_out_date}',
+                                f'Product Name: ||{license_name}||',
+                                f'Exp: ||{license_out_date}||',
+                                f'Key: `{license_key}`',
                                 '',
                                 'VPN Codes:',
                                 f'{vpn_codes_line}',
                                 '-------------------------------------------------',
                                 ''
                             ])
+                            output_lines = '\n'.join([
+                                '',
+                                f'{vpn_codes_line}',
+                                ''
+                            ])
                             print(output_line)
-                            full_message = f"{vpn_title}\n{vpn_sub_title}\n\n\n{vpn_codes_line}\n\n\n{important_note}\n\n\n{proof}\n\n\n{stay_tuned}\n{mention}\n"
+                            full_message = f"{vpn_title}\n{vpn_sub_title}\n\n\n{output_lines}\n\n\n{important_note}\n\n\n{proof}\n\n\n{stay_tuned}\n{mention}\n"
                             try:
                                 with open(photo_path, 'rb') as photo:
-                                    bot.send_photo(chat_id=-1001370118432, photo=photo, caption=full_message, parse_mode='MARKDOWNv2')
+                                    bot.send_photo(chat_id=614469986, photo=photo, caption=full_message, parse_mode='MARKDOWNv2')
                             except Exception as e:
                                 print(f"Error sending photo: {e}")
             # ESET ProtectHub
