@@ -388,7 +388,7 @@ def main(disable_exit=False):
                         vpn_codes = EV_obj.getVPNCodes()
                         if not args['custom_email_api']:
                             vpn_title = "ESET VPN Free License Key for 30 days"
-                            vpn_sub_title = "_Over 60 locations to choose\_"
+                            vpn_sub_title = "Over 60 locations to choose"
                             proof = "Comment activation Screenshot as of proof"
                             important_note = ">❤️Give Reaction❤️"
                             photo_path = 'img/ESET_VPN.png'
