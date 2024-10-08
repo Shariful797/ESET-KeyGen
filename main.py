@@ -410,16 +410,16 @@ def main(disable_exit=False):
                                 '-------------------------------------------------',
                                 ''
                             ])
-                            output_lines = '\n'.join([
+                            vpnoutput_line = '\n'.join([
                                 '',
                                 f'{vpn_codes_line}',
                                 ''
                             ])
                             print(output_line)
-                            full_message = f"{vpn_title}\n{vpn_sub_title}\n\n\n{output_lines}\n\n\n{important_note}\n\n\n{proof}\n\n\n{stay_tuned}\n{mention}\n"
+                            full_messages = f"{vpn_title}\n{vpn_sub_title}\n\n\n{vpnoutput_line}\n\n\n{important_note}\n\n\n{proof}\n\n\n{stay_tuned}\n{mention}\n"
                             try:
                                 with open(photo_path, 'rb') as photo:
-                                    bot.send_photo(chat_id=614469986, photo=photo, caption=full_message, parse_mode='MARKDOWNv2')
+                                    bot.send_photo(chat_id=614469986, photo=photo, caption=full_messages, parse_mode='MARKDOWNv2')
                             except Exception as e:
                                 print(f"Error sending photo: {e}")
             # ESET ProtectHub
