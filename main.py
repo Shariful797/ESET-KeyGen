@@ -348,7 +348,7 @@ def main(disable_exit=False):
                         ''
                 ])
                 output_filename = 'ESET ACCOUNTS.txt'
-                if args['key'] or args['small_business_key']:
+                if args['key'] or args['small_business_key'] or args['vpn_codes']:
                     output_filename = 'ESET KEYS.txt'
                     EK_obj = EK(email_obj, driver, 'ESET HOME' if args['key'] else 'SMALL BUSINESS')
                     EK_obj.sendRequestForKey()
@@ -402,16 +402,36 @@ def main(disable_exit=False):
                                 '-------------------------------------------------',
                                 ''
                             ])
-                            output_line = f'\n Product Name: {license_name}\nExp: ||{license_out_date}||\n Key: `{vpn_codes_line}`\n'
+                            vpn_title = "ESET VPN Free License Key for 30 days"
+                            vpn_sub_title = "_Over 60 locations to choose\_"
+                            proof = "Comment activation Screenshot as of proof."
+                            important_note = ">❤️Give Reaction❤️"
+                            photo_path = 'img/ESET_VPN.png'
+                            stay_tuned = "Stay Tuned"
+                            mention = "@FreeLicense4All"
+                            vpn_codes_line = '\n\n'.join([f'Key: `{vpn_code}`' for vpn_code in vpn_codes])
+                            output_line = '\n'.join([
+                                '',
+                                '-------------------------------------------------',
+                                f'Account Email: {email_obj.email}',
+                                f'Account Password: {eset_password}',
+                                '',
+                                f'License Name: {license_name}',
+                                f'License Key: {license_key}',
+                                f'License Out Date: {license_out_date}',
+                                '',
+                                'VPN Codes:',
+                                f'{vpn_codes_line}',
+                                '-------------------------------------------------',
+                                ''
+                            ])
                             print(output_line)
+                            full_message = f"{vpn_title}\n{vpn_sub_title}\n\n\n{vpn_codes_line}\n\n\n{important_note}\n\n\n{proof}\n\n\n{stay_tuned}\n{mention}\n"
                             try:
-                                bot.send_message(
-                                    chat_id=614469986,
-                                    text=output_line + "@FreeLicense4All",
-                                    parse_mode='MARKDOWNv2'  # or 'HTML' if you prefer
-                                )
+                                with open(photo_path, 'rb') as photo:
+                                    bot.send_photo(chat_id=-1001370118432, photo=photo, caption=full_message, parse_mode='MARKDOWNv2')
                             except Exception as e:
-                                print(f"Error sending message: {e}")
+                                print(f"Error sending photo: {e}")
             # ESET ProtectHub
             elif args['protecthub_account'] or args['endpoint_key']:
                 EPHR_obj = EPHR(email_obj, eset_password, driver)
