@@ -61,12 +61,12 @@ jobs:
 
           # Function to generate accounts
           function generate_accounts {
-            seq 1 $1 | xargs -I {} -P $1 python3 main.py --chrome --account --email-api ${MAIL} --token ${{ secrets.TOKEN }} --skip-webdriver-menu --skip-update-check --no-logo --disable-progress-bar
+            seq 1 $1 | xargs -I {} -P $1 python3 main.py --chrome --account --email-api ${MAIL} --token $TOKEN --skip-webdriver-menu --skip-update-check --no-logo --disable-progress-bar
           }
 
           # Function to generate keys
           function generate_keys {
-            seq 1 $1 | xargs -I {} -P $1 python3 main.py --chrome ${KEY_TYPE} --email-api ${MAIL} --token ${{ secrets.TOKEN }} --skip-webdriver-menu --skip-update-check --no-logo --disable-progress-bar
+            seq 1 $1 | xargs -I {} -P $1 python3 main.py --chrome ${KEY_TYPE} --email-api ${MAIL} --token $TOKEN --skip-webdriver-menu --skip-update-check --no-logo --disable-progress-bar
           }
           
           # Generate based on input parameters
@@ -74,18 +74,18 @@ jobs:
               generate_accounts ${ACCOUNT} &
               generate_keys ${KEY}
               wait
-              echo "Account:" >> $GITHUB_STEP_SUMMARY
-              cat ./*ACCOUNTS.txt >> $GITHUB_STEP_SUMMARY
+              echo -e "\nAccount:" >> $GITHUB_STEP_SUMMARY
+              cat ./*ACCOUNTS.txt >> $GITHUB_STEP_SUMMARY || echo "No accounts generated." >> $GITHUB_STEP_SUMMARY
               echo -e "\nKey:" >> $GITHUB_STEP_SUMMARY
-              cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY
+              cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY || echo "No keys generated." >> $GITHUB_STEP_SUMMARY
           elif [[ ${ACCOUNT} -ne 0 ]]; then
               generate_accounts ${ACCOUNT}
               echo -e "\nAccount:" >> $GITHUB_STEP_SUMMARY
-              cat ./*ACCOUNTS.txt >> $GITHUB_STEP_SUMMARY
+              cat ./*ACCOUNTS.txt >> $GITHUB_STEP_SUMMARY || echo "No accounts generated." >> $GITHUB_STEP_SUMMARY
           elif [[ ${KEY} -ne 0 ]]; then
               generate_keys ${KEY}
               echo -e "\nKey:" >> $GITHUB_STEP_SUMMARY
-              cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY
+              cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY || echo "No keys generated." >> $GITHUB_STEP_SUMMARY
           else
               echo "No accounts or keys to generate." >> $GITHUB_STEP_SUMMARY
           fi
