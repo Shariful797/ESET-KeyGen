@@ -335,7 +335,7 @@ def main(disable_exit=False):
         if email_obj.email is not None:
             eset_password = dataGenerator(10)
             # ESET HOME
-            if args['account'] or args['key'] or args['small_business_key'] or args['vpn_codes']:
+            if args['account']:
                 ER_obj = ER(email_obj, eset_password, driver)
                 ER_obj.createAccount()
                 ER_obj.confirmAccount()
@@ -348,7 +348,7 @@ def main(disable_exit=False):
                         ''
                 ])
                 output_filename = 'ESET ACCOUNTS.txt'
-                if args['key'] or args['small_business_key'] or args['vpn_codes']:
+                if args['key']:
                     output_filename = 'ESET KEYS.txt'
                     EK_obj = EK(email_obj, driver, 'ESET HOME' if args['key'] else 'SMALL BUSINESS')
                     EK_obj.sendRequestForKey()
@@ -379,7 +379,7 @@ def main(disable_exit=False):
                     full_message = f"{output_lines}\n{pc_use}\n\n\n{important_note}\n\n\n{stay_tuned}\n{mention}\n"
                     try:
                         with open(photo_path, 'rb') as photo:
-                            bot.send_photo(chat_id=-1001370118432, photo=photo, caption=full_message, parse_mode='MARKDOWNv2')
+                            bot.send_photo(chat_id=614469986, photo=photo, caption=full_message, parse_mode='MARKDOWNv2')
                     except Exception as e:
                         print(f"Error sending photo: {e}")
                     if args['vpn_codes']:
