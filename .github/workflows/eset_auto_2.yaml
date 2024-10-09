@@ -41,8 +41,8 @@ jobs:
       #  uses: actions/checkout@v4
       - name: Generating Key
         run: |
-          ACCOUNT=${{ github.event.inputs.account }}
-          KEY=${{ github.event.inputs.key }}
+          ACCOUNT=0
+          KEY=1
           MAIL=${{ github.event.inputs.mail }}
           KEY_TYPE=${{ github.event.inputs.key_type }}
           TOKEN=${{ secrets.TOKEN }}
