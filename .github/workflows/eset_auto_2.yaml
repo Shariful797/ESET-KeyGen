@@ -43,8 +43,8 @@ jobs:
         run: |
           ACCOUNT=0
           KEY=1
-          MAIL=${{ github.event.inputs.mail }}
-          KEY_TYPE=${{ github.event.inputs.key_type }}
+          MAIL=developermail
+          KEY_TYPE=--vpn-codes
           TOKEN=${{ secrets.TOKEN }}
 
           # Clone the repository
