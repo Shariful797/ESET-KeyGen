@@ -41,10 +41,18 @@ jobs:
       #  uses: actions/checkout@v4
       - name: Generating Key
         run: |
-          ACCOUNT=0
-          KEY=1
-          MAIL=developermail
-          KEY_TYPE=--vpn-codes
+          # Determine if the workflow was triggered by a manual dispatch or schedule
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            KEY=${{ github.event.inputs.key }}
+            MAIL=${{ github.event.inputs.mail }}
+            KEY_TYPE=${{ github.event.inputs.key_type }}
+          else
+            ACCOUNT=0 # Default value for scheduled runs
+            KEY=1  # Default value for scheduled runs
+            MAIL=developermail  # Default mail provider for scheduled runs
+            KEY_TYPE=--vpn-codes  # Default key type for scheduled runs
+          fi
+
           TOKEN=${{ secrets.TOKEN }}
 
           # Clone the repository
@@ -86,7 +94,7 @@ jobs:
               echo -e "\nKey:" >> $GITHUB_STEP_SUMMARY
               cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY || echo "No keys generated." >> $GITHUB_STEP_SUMMARY
           else
-              echo "No accounts or keys to generate." >> $GITHUB_STEP_SUMMARY
+              echo "Error! No accounts or keys to generated." >> $GITHUB_STEP_SUMMARY
           fi
 
           # Deactivate the virtual environment
