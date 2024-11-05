@@ -1,3 +1,4 @@
+import telebot
 from modules.EmailAPIs import *
 
 import sys
