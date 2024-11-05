@@ -381,8 +381,8 @@ def main(disable_exit=False):
                         if not args['custom_email_api']:
                             vpn_title = "ESET VPN Free License Key for 30 days"
                             vpn_sub_title = "Over 60 locations to choose"
-                            proof = "📸 Share a screenshot in the comments!"
-                            important_note = ">❤️Show Your Support with Reactions ❤️"
+                            proof = "📸 Share a screenshot in the comments\!"
+                            important_note = ">❤️Show Your Support with Reactions❤️"
                             photo_path = 'img/ESET_VPN.png'
                             stay_tuned = "Stay tuned for more\!"
                             mention = "@FreeLicense4All"
