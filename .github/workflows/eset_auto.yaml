@@ -20,7 +20,8 @@ on:
         - guerrillamail
         - developermail
         - mailticking
-        default: mailticking
+        - fakemail
+        default: 1secmail
       key_type:
         description: 'Choose the key type'
         required: true
