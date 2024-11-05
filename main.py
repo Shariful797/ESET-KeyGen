@@ -346,9 +346,9 @@ def main(disable_exit=False):
                     EK_obj.sendRequestForKey()
                     license_name, license_key, license_out_date = EK_obj.getLicenseData()
                     pc_use = r"*💻 Pc or Laptop*: Use the key without connecting your account\!"
-                    important_note = ">❤️Show Your Support with Reactions ❤️"
+                    important_note = ">❤️Show Your Support with Reactions❤️"
                     photo_path = 'img/essp.jpg'
-                    stay_tuned = "Stay tuned for more!"
+                    stay_tuned = "Stay tuned for more\!"
                     mention = "@FreeLicense4All"
                     output_line = '\n'.join([
                         '',
@@ -384,7 +384,7 @@ def main(disable_exit=False):
                             proof = "📸 Share a screenshot in the comments!"
                             important_note = ">❤️Show Your Support with Reactions ❤️"
                             photo_path = 'img/ESET_VPN.png'
-                            stay_tuned = "Stay tuned for more!"
+                            stay_tuned = "Stay tuned for more\!"
                             mention = "@FreeLicense4All"
                             vpn_codes_line = '\n\n'.join([f'Key: `{vpn_code}`' for vpn_code in vpn_codes])
                             output_line = '\n'.join([
