@@ -102,7 +102,7 @@ def RunMenu():
             args,
             title='Modes of operation',
             action='store_true',
-            args_names=['key', 'small-business-key', 'advanced-key', 'vpn-codes', 'account', 'protecthub-account', 'only-webdriver-update', 'update'],
+            args_names=['key', 'small-business-key', 'advanced-key', 'vpn-codes', 'account', 'protecthub-account', 'only-webdriver-update', 'update', 'reset-eset-vpn'],
             default_value='key')
     )
     SettingMenu.add_item(
@@ -195,9 +195,10 @@ def parse_argv():
         RunMenu()
     else: # CLI
         args_parser = argparse.ArgumentParser()
+        ENABLE_REQUIRED_ARGUMENTS = ('--update' not in sys.argv and '--reset-eset-vpn' not in sys.argv)
         # Required
         ## Browsers
-        args_browsers = args_parser.add_mutually_exclusive_group(required=('--update' not in sys.argv))
+        args_browsers = args_parser.add_mutually_exclusive_group(required=ENABLE_REQUIRED_ARGUMENTS)
         args_browsers.add_argument('--chrome', action='store_true', help='Launching the project via Google Chrome browser')
         args_browsers.add_argument('--firefox', action='store_true', help='Launching the project via Mozilla Firefox browser')
         args_browsers.add_argument('--edge', action='store_true', help='Launching the project via Microsoft Edge browser')
