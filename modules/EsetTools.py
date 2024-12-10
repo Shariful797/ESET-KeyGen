@@ -139,6 +139,7 @@ class EsetKeygen(object):
         license_name = exec_js(f"return {GET_EBAV}('div', 'data-label', 'license-detail-product-name').innerText")
         license_out_date = exec_js(f"return {GET_EBAV}('div', 'data-label', 'license-detail-license-model-additional-info').innerText")
         license_key = exec_js(f"return {GET_EBAV}('div', 'data-label', 'license-detail-license-key').innerText")
+        license_out_date = license_out_date.replace('.', '-')
         console_log('Information successfully received!', OK)
         return license_name, license_key, license_out_date
 
