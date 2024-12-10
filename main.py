@@ -56,7 +56,7 @@ args = {
     'skip_update_check': False,
     'no_logo': False,
     'disable_progress_bar': False,
-    'disable_output_file': False,
+    'disable_output_file': True,
     'repeat': 1
 }
 # -----------------------------------------------------------------------------------------------
@@ -380,8 +380,8 @@ def main(disable_exit=False):
                     ])
                     output_lines = '\n'.join([
                         '',
-                        f'🟢 Product Name: {license_name}',
-                        f'🕐 Exp: ||{license_out_date}||',
+                        f'🟢 Product Name: ||{license_name}||',
+                        f'🕐 Exp: {license_out_date}',
                         f'🔑 Key: `{license_key}`',
                         ''
                     ])
@@ -399,7 +399,7 @@ def main(disable_exit=False):
                         if not args['custom_email_api']:
                             vpn_title = "ESET VPN Free License Key for 30 days"
                             vpn_sub_title = "Over 60 locations to choose"
-                            proof = "📸 Share a screenshot in the comments\!"
+                            proof = "📸Share a screenshot in the comments\!"
                             important_note = ">❤️Show Your Support with Reactions❤️"
                             photo_path = 'img/ESET_VPN.png'
                             stay_tuned = "Stay tuned for more\!"
