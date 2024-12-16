@@ -31,40 +31,68 @@ on:
           - --small-business-key
           - --vpn-codes
         default: --vpn-codes
+      os:
+        description: 'Operating System of runner'
+        required: true
+        type: choice
+        options:
+        - macOS
+        - Linux
+        - Windows
+        default: macOS
   schedule:
     - cron: "10 */12 * * *"
 
 jobs:
   GenerateKey:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.inputs.os == 'Linux' && 'ubuntu-latest' || github.event.inputs.os == 'Windows' && 'windows-latest' || 'macos-latest' }}
     steps:
-      #- name: Checkout repository
-      #  uses: actions/checkout@v4
-      - name: Generating Key
+      - name: Generate Keys and Accounts
         run: |
           # Determine if the workflow was triggered by a manual dispatch or schedule
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            ACCOUNT=${{ github.event.inputs.account }}
             KEY=${{ github.event.inputs.key }}
             MAIL=${{ github.event.inputs.mail }}
             KEY_TYPE=${{ github.event.inputs.key_type }}
+            OS=${{ github.event.inputs.os }}
           else
-            ACCOUNT=0 # Default value for scheduled runs
-            KEY=1  # Default value for scheduled runs
-            MAIL=developermail  # Default mail provider for scheduled runs
-            KEY_TYPE=--vpn-codes  # Default key type for scheduled runs
+            # Default values for scheduled runs
+            ACCOUNT=0
+            KEY=1
+            MAIL=developermail
+            KEY_TYPE=--vpn-codes
+            OS=macOS
           fi
 
           TOKEN=${{ secrets.TOKEN }}
+
+          echo "Inputs determined as:"
+          echo "ACCOUNT=${ACCOUNT}"
+          echo "KEY=${KEY}"
+          echo "MAIL=${MAIL}"
+          echo "KEY_TYPE=${KEY_TYPE}"
+          echo "OS=${OS}"
 
           # Clone the repository
           git clone https://github.com/Shariful797/ESET-KeyGen.git
           cd ESET-KeyGen || exit 1
 
-          # Setup Python environment
-          sudo apt update
-          sudo apt install -y python3-pip python3-venv
-          python3 -m venv venv
-          source venv/bin/activate
+          # Setup Python environment based on OS
+          if [[ "${OS}" == "Windows" ]]; then
+              python -m venv venv
+              venv\Scripts\activate
+          elif [[ "${OS}" == "macOS" ]]; then
+              brew install python
+              python3 -m venv venv
+              source venv/bin/activate
+          else
+              sudo apt update
+              sudo apt install -y python3-pip python3-venv
+              python3 -m venv venv
+              source venv/bin/activate
+          fi
+
           pip install -r requirements.txt
 
           # Function to generate accounts
@@ -76,7 +104,7 @@ jobs:
           function generate_keys {
             seq 1 $1 | xargs -I {} -P $1 python3 main.py --chrome ${KEY_TYPE} --email-api ${MAIL} --token $TOKEN --skip-webdriver-menu --skip-update-check --no-logo --disable-progress-bar
           }
-          
+
           # Generate based on input parameters
           if [[ ${ACCOUNT} -ne 0 && ${KEY} -ne 0 ]]; then
               generate_accounts ${ACCOUNT} &
@@ -94,8 +122,6 @@ jobs:
               generate_keys ${KEY}
               echo -e "\nKey:" >> $GITHUB_STEP_SUMMARY
               cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY || echo "No keys generated." >> $GITHUB_STEP_SUMMARY
-          else
-              echo "Error! No accounts or keys to generated." >> $GITHUB_STEP_SUMMARY
           fi
 
           # Deactivate the virtual environment
