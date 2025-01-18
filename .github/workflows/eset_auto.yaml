@@ -21,7 +21,7 @@ on:
         - developermail
         - mailticking
         - fakemail
-        default: 1secmail
+        default: guerrillamail
       key_type:
         description: 'Choose the key type'
         required: true
@@ -41,7 +41,7 @@ jobs:
         run: |
           ACCOUNT=0
           KEY=1
-          MAIL=mailticking
+          MAIL=guerrillamail
           KEY_TYPE=--key
 
           git clone https://github.com/Shariful797/ESET-KeyGen.git
