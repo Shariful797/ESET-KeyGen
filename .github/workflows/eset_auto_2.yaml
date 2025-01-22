@@ -21,7 +21,9 @@ on:
         - developermail
         - mailticking
         - fakemail
-        default: guerrillamail
+        - inboxes
+        - incognitomail
+        default: fakemail
       key_type:
         description: 'Modes of operation'
         required: true
@@ -45,7 +47,7 @@ on:
 
 jobs:
   GenerateKey:
-    runs-on: ${{ github.event.inputs.os == 'Linux' && 'ubuntu-latest' || github.event.inputs.os == 'Windows' && 'windows-latest' || 'macos-latest' }}
+    runs-on: ${{ github.event.inputs.os == 'Windows' && 'windows-latest' || github.event.inputs.os == 'Linux' && 'ubuntu-latest' || 'macos-latest' }}
     steps:
       - name: Generate Keys and Accounts
         run: |
@@ -60,7 +62,7 @@ jobs:
             # Default values for scheduled runs
             ACCOUNT=0
             KEY=1
-            MAIL=developermail
+            MAIL=fakemail
             KEY_TYPE=--vpn-codes
             OS=macOS
           fi
@@ -80,8 +82,7 @@ jobs:
 
           # Setup Python environment based on OS
           if [[ "${OS}" == "Windows" ]]; then
-              python -m venv venv
-              venv\Scripts\activate
+              pip install -r requirements.txt
           elif [[ "${OS}" == "macOS" ]]; then
               brew install python
               python3 -m venv venv
@@ -125,4 +126,4 @@ jobs:
           fi
 
           # Deactivate the virtual environment
-          deactivate
+          #deactivate
