@@ -59,6 +59,34 @@ for(let i=0; i < raw_inbox.length; i++) {
 }
 return inbox
 """
+PARSE_1SECMAILPRO_INBOX = """
+let iframes = document.getElementsByTagName('iframe')
+let message_iframes = []
+for (let i = 0; i < iframes.length; i++) {
+    if (iframes[i].className.search('flex') !== -1)
+        message_iframes.push(iframes[i])
+}
+
+let messages = []
+let mailbox = document.getElementsByClassName('list')[0].children[1].children
+for(let i = 0; i < mailbox.length; i++) {
+    let temp = mailbox[i].innerText.split('\n')
+    messages.push([temp[1].trim(), temp[2].trim(), message_iframes[i].srcdoc])
+}
+return messages
+"""
+PARSE_INCOGNITOMAIL_INBOX = """
+let li_elements = document.getElementsByTagName('li')
+let messages_header = []
+for (let i = 0; i < li_elements.length; i++) {
+    let headers = li_elements[i].querySelectorAll('p')
+    try {
+        if (headers[0].title != '' && headers[1].title != '')
+            messages_header.push([headers[0], headers[0].title, headers[1].title])
+    } catch (error) { }
+}
+return messages_header
+"""
 
 class OneSecEmailAPI:
     def __init__(self):
@@ -85,6 +113,7 @@ class OneSecEmailAPI:
     
     def read_email(self):
         url = f'{self.__api}?action=getMessages&login={self.__login}&domain={self.__domain}'
+        print(url)
         try:
             r = requests.get(url)
         except:
@@ -95,6 +124,7 @@ class OneSecEmailAPI:
     
     def get_message(self, message_id):
         url = f'{self.__api}?action=readMessage&login={self.__login}&domain={self.__domain}&id={message_id}'
+        print(url)
         try:
             r = requests.get(url)
         except:
@@ -229,9 +259,126 @@ class FakeMailAPI:
         self.driver.switch_to.window(self.window_handle)
         self.driver.get(f'https://www.fakemail.net/email/id/{id}')
 
+class InboxesAPI:
+    def __init__(self, driver: Chrome):
+        self.class_name = 'inboxes'
+        self.driver = driver
+        self.email = None
+        self.window_handle = None
+    
+    def init(self):
+        self.driver.get('https://inboxes.com')
+        self.window_handle = self.driver.current_window_handle
+        button = None
+        for _ in range(DEFAULT_MAX_ITER):
+            try:
+                button = self.driver.find_element('xpath', '//button[contains(text(), "Get my first inbox!")]')
+                break
+            except:
+                pass
+            time.sleep(DEFAULT_DELAY)
+        if button is not None:
+            button.click()
+            time.sleep(1)
+            for button in self.driver.execute_script(f'return {GET_EBTN}("button")'):
+                if button.text.strip().lower() == 'choose for me':
+                    button.click()
+                    break
+            time.sleep(2)
+            for element in self.driver.execute_script(f'return {GET_EBTN}("span")'):
+                new_email = ''.join(element.text.split())
+                if new_email is not None:
+                    new_email = re.match(r'[-a-z0-9+.]+@[a-z]+(\.[a-z]+)+', new_email)
+                    if new_email is not None:
+                        self.email = new_email.group()
+                        break
+    
+    def get_messages(self):
+        r = requests.get(f'https://inboxes.com/api/v2/inbox/{self.email}')
+        raw_inbox = r.json()['msgs']
+        messages = []
+        for message in raw_inbox:
+            r = requests.get(f'https://inboxes.com/api/v2/message/{message["uid"]}').json()
+            messages.append({
+                'from': r['ff'][0]['address'],
+                'subject': message['s'],
+                'body': r['html']
+            })
+        return messages
+
+"""class OneSecMailProAPI:
+    def __init__(self, driver: Chrome):
+        self.class_name = '1secmailpro'
+        self.driver = driver
+        self.email = None
+        self.window_handle = None
+    
+    def init(self):
+        self.driver.get("https://1secmail.pro")
+        self.window_handle = self.driver.current_window_handle
+        untilConditionExecute(self.driver, f"return {CLICK_WITH_BOOL}(document.querySelectorAll('input.block')[3])")
+        for _ in range(5):
+            if self.driver.page_source.lower().find('you have reached daily limit of maximum 5 temp mail addresses') != -1:
+                console_log('[1secmailpro]: Daily limit reached!', ERROR)
+                return False
+            time.sleep(DEFAULT_DELAY)
+        untilConditionExecute(self.driver, f"return {GET_EBID}('email_id').innerText != ''", delay=0.5, max_iter=20)
+        self.email = self.driver.execute_script(f"return {GET_EBID}('email_id').innerText")
+
+    def get_messages(self):
+        self.driver.switch_to.window(self.window_handle)
+        self.driver.get("https://1secmail.pro/mailbox")
+        for _ in range(5):
+            try:
+                messages_list = self.driver.execute_script(PARSE_1SECMAILPRO_INBOX)
+                print(messages_list)
+                if messages_list is not None:
+                    messages = []
+                    for message in messages_list:
+                        messages.append({
+                            'from': message[0],
+                            'subject': message[1],
+                            'body': message[2]
+                        })
+                    return messages
+            except Exception as E:
+                pass
+            time.sleep(DEFAULT_DELAY)"""
+
+class IncognitoMailAPI:
+    def __init__(self, driver: Chrome):
+        self.class_name = 'incognitomail'
+        self.driver = driver
+        self.email = None
+        self.window_handle = None
+    
+    def init(self):
+        self.driver.get("https://incognitomail.co/")
+        self.window_handle = self.driver.current_window_handle
+        untilConditionExecute(self.driver, f"return {GET_EBAV}('button', 'aria-label', 'Email dropdown').textContent != 'Creating...'")
+        self.email = self.driver.execute_script(f"return {GET_EBAV}('button', 'aria-label', 'Email dropdown').textContent")
+
+    def parse_inbox(self):
+        self.driver.switch_to.window(self.window_handle)
+        self.driver.get("https://incognitomail.co")
+        for _ in range(3):
+            try:
+                inbox_headers = self.driver.execute_script(PARSE_INCOGNITOMAIL_INBOX)
+                if inbox_headers != [] and inbox_headers is not None:
+                    return inbox_headers
+            except Exception as E:
+                pass
+            time.sleep(DEFAULT_DELAY)
+        return []
+
+    def open_mail(self, web_element):
+        self.driver.switch_to.window(self.window_handle)
+        web_element.click()
+
+
 class CustomEmailAPI:
     def __init__(self):
         self.class_name = 'custom'
         self.email = None
 
-WEB_WRAPPER_EMAIL_APIS_CLASSES = (GuerRillaMailAPI, MailTickingAPI, FakeMailAPI)
+WEB_WRAPPER_EMAIL_APIS_CLASSES = (GuerRillaMailAPI, MailTickingAPI, FakeMailAPI, InboxesAPI, IncognitoMailAPI)
