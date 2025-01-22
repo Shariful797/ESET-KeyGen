@@ -2,29 +2,25 @@ from selenium.webdriver import Chrome, ChromeOptions, ChromeService
 from selenium.webdriver import Firefox, FirefoxOptions, FirefoxService
 from selenium.webdriver import Edge, EdgeOptions, EdgeService
 
-import logging
-
-logger = logging.getLogger('selenium')
-logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler('selenium-logs.txt')
-logger.addHandler(handler)
-logging.getLogger('selenium.webdriver.remote').setLevel(logging.WARN)
-logging.getLogger('selenium.webdriver.common').setLevel(logging.DEBUG)
-
+import subprocess
 import traceback
 import colorama
 import random
 import string
+import shutil
 import time
 import sys
 import os
 import re
 
+I_AM_EXECUTABLE = (True if (getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')) else False)
+PATH_TO_SELF = sys.executable if I_AM_EXECUTABLE else __file__
+
 DEFAULT_MAX_ITER = 30
 DEFAULT_DELAY = 1
 GET_EBCN = 'document.getElementsByClassName'
 GET_EBID = 'document.getElementById'
-GET_EBTN = 'document.getElementByTagName'
+GET_EBTN = 'document.getElementsByTagName'
 GET_EBAV = 'getElementByAttrValue'
 CLICK_WITH_BOOL = 'clickWithBool'
 DEFINE_GET_EBAV_FUNCTION = """
@@ -125,7 +121,7 @@ def dataGenerator(length, only_numbers=False):
             random.choice(string.ascii_uppercase),
             random.choice(string.ascii_lowercase),
             random.choice(string.digits),
-            random.choice("""!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~""")
+            random.choice("""!"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~""")
         ]
         characters = string.ascii_letters + string.digits + string.punctuation
         data += [random.choice(characters) for _ in range(length-3)]
@@ -227,21 +223,21 @@ def parseToken(email_obj, driver=None, eset_business=False, delay=DEFAULT_DELAY,
                         activated_href = email_obj.get_message(message['id'])['body']
                     elif message['from'].find('product.eset.com') != -1:
                         activated_href = email_obj.get_message(message['id'])['body']
-        elif email_obj.class_name == 'developermail':
+        elif email_obj.class_name in ['developermail', 'inboxes']:
             messages = email_obj.get_messages()
             if messages is not None:
-                message = messages[-1]
-                if eset_business and message['subject'].find('ESET PROTECT Hub') != -1:
-                    activated_href = message['body']
-                elif message['from'].find('product.eset.com') != -1:
-                    activated_href = message['body']
-        elif email_obj.class_name in ['guerrillamail', 'mailticking', 'fakemail']:
+                for message in messages:
+                    if eset_business and message['subject'].find('ESET PROTECT Hub') != -1:
+                        activated_href = message['body']
+                    elif message['from'].find('product.eset.com') != -1:
+                        activated_href = message['body']
+        elif email_obj.class_name in ['guerrillamail', 'mailticking', 'fakemail', 'incognitomail']:
             inbox = email_obj.parse_inbox()
             for mail in inbox:
                 mail_id, mail_from, mail_subject = mail
                 if mail_from.find('product.eset.com') != -1 or mail_from.find('ESET HOME') != -1 or mail_subject.find('ESET PROTECT Hub') != -1:
                     email_obj.open_mail(mail_id)
-                    if email_obj.class_name in ['mailticking']:
+                    if email_obj.class_name in ['mailticking', 'incognitomail']:
                         time.sleep(1.5)
                     try:
                         if eset_business:
@@ -268,14 +264,14 @@ def parseToken(email_obj, driver=None, eset_business=False, delay=DEFAULT_DELAY,
 def parseEPHKey(email_obj, driver=None, delay=DEFAULT_DELAY, max_iter=DEFAULT_MAX_ITER):
     for _ in range(max_iter):
         license_data = None
-        if email_obj.class_name == 'developermail':
+        if email_obj.class_name in ['developermail', 'inboxes']:
             messages = email_obj.get_messages()
             if messages is not None:
                 for message in messages:
                     if message['subject'].find('Thank you for purchasing') != -1:
                         license_data = message['body']
                         break
-        if email_obj.class_name in ['mailticking', 'fakemail']:
+        elif email_obj.class_name in ['mailticking', 'fakemail', 'incognitomail']:
             inbox = email_obj.parse_inbox()
             for mail in inbox:
                 mail_id, mail_from, mail_subject = mail
@@ -302,13 +298,13 @@ def parseVPNCodes(email_obj, driver=None, delay=DEFAULT_DELAY, max_iter=DEFAULT_
                 for message in json:
                     if message['subject'].find('VPN - Setup instructions') != -1:
                         data = email_obj.get_message(message['id'])['body']
-        elif email_obj.class_name == 'developermail':
+        elif email_obj.class_name in ['developermail', 'inboxes']:
             messages = email_obj.get_messages()
             if messages is not None:
                 for message in messages:
                     if message['subject'].find('VPN - Setup instructions') != -1:
                         data = message['body']
-        elif email_obj.class_name in ['guerrillamail', 'mailticking', 'fakemail']:
+        elif email_obj.class_name in ['guerrillamail', 'mailticking', 'fakemail', 'incognitomail']:
             inbox = email_obj.parse_inbox()
             for mail in inbox:
                 mail_id, mail_from, mail_subject = mail
@@ -325,6 +321,12 @@ def parseVPNCodes(email_obj, driver=None, delay=DEFAULT_DELAY, max_iter=DEFAULT_
                             data = str(driver.execute_script(f'return {GET_EBCN}("email_body")[0].innerHTML'))
                         except:
                             pass
+                    elif email_obj.class_name == 'incognitomail':
+                        time.sleep(1.5)
+                        try:
+                            data = str(driver.execute_script(f'return {GET_EBCN}("MuiBox-root joy-1v8x7dw")[0].innerHTML'))
+                        except:
+                            pass
                     else:
                         data = driver.page_source
         if data is not None:
@@ -333,3 +335,44 @@ def parseVPNCodes(email_obj, driver=None, delay=DEFAULT_DELAY, max_iter=DEFAULT_
                 return match
         time.sleep(delay)
     raise RuntimeError('VPN Codes retrieval error, try again later or change the Email API!!!')
+
+class Installer:
+    def __init__(self):
+        self.install_path = None
+        self.executable_path = None
+        if sys.platform.startswith('win'):
+            self.install_path = os.environ['SystemRoot']
+            self.executable_path = self.install_path + '\\esetkeygen.exe'
+        elif sys.platform == "darwin":
+            self.install_path = '/usr/local/bin'
+            self.executable_path = self.install_path + '/esetkeygen'
+
+    def check_install(self):
+        exit_code = None
+        try:
+            exit_code = subprocess.call([self.executable_path, '--return-exit-code', '999'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except:
+            pass
+        return (exit_code == 999)
+    
+    def install(self):
+        if self.check_install():
+            console_log('The program is already installed!!!', OK)
+            console_log(f'Location: {self.executable_path}', WARN)
+            return True
+        if sys.platform.startswith('win') or sys.platform == 'darwin':
+            if I_AM_EXECUTABLE:
+                try:
+                    shutil.copy2(PATH_TO_SELF, self.executable_path)
+                    console_log(f'The program was successfully installed on the path: {self.executable_path}', OK)
+                    return True
+                except PermissionError:
+                    console_log('No write access, try running the program with elevated permissions!!!', ERROR)
+                except Exception as e:
+                    raise RuntimeError(e)
+                except shutil.SameFileError:
+                    console_log('Installation is pointless from under an installed executable file!!!', ERROR)
+                return False
+            else:
+                console_log('Installation from source is not possible!!!!', ERROR)
+            return False
