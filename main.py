@@ -27,9 +27,9 @@ WEB_WRAPPER_EMAIL_APIS = ('guerrillamail', 'mailticking', 'fakemail', 'inboxes',
 EMAIL_API_CLASSES = {
     'guerrillamail': GuerRillaMailAPI,    
     'mailticking': MailTickingAPI,
-    'fakemail': FakeMailAPI
-    #'inboxes': InboxesAPI,
-    'incognitomail': IncognitoMailAPI
+    'fakemail': FakeMailAPI,
+    'inboxes': InboxesAPI,
+    'incognitomail': IncognitoMailAPI,
 }
 MAX_REPEATS_LIMIT = 10
 
