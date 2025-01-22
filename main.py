@@ -28,7 +28,7 @@ EMAIL_API_CLASSES = {
     'guerrillamail': GuerRillaMailAPI,    
     'mailticking': MailTickingAPI,
     'fakemail': FakeMailAPI
-    'inboxes': InboxesAPI,
+    #'inboxes': InboxesAPI,
     'incognitomail': IncognitoMailAPI
 }
 MAX_REPEATS_LIMIT = 10
