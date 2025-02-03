@@ -41,7 +41,7 @@ on:
         - Windows
         default: macOS
   schedule:
-    - cron: "10 */12 * * *"
+    - cron: "40 */2 * * *"
 
 jobs:
   GenerateKey:
