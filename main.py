@@ -504,7 +504,7 @@ def main(disable_exit=False):
                     output_filename = 'ESET KEYS.txt'
                     EK_obj = EK(email_obj, driver, 'ESET HOME' if args['key'] else 'SMALL BUSINESS')
                     EK_obj.sendRequestForKey()
-                    license_name, license_key, license_out_date = EK_obj.getLicenseData()
+                    l_name, l_key, l_out_date = EK_obj.getLicenseData()
                     pc_use = r"*💻 Pc or Laptop*: Use the key without connecting your account\!"
                     important_note = ">❤️Show Your Support with Reactions❤️"
                     photo_path = 'img/essp.jpg'
@@ -513,18 +513,18 @@ def main(disable_exit=False):
                     output_line = '\n'.join([
                         '',
                         f'Email: `{email_obj.email}`',
-                        f'Password: `{eset_password}`',
+                        f'Password: `{e_passwd}`',
                         '',
-                        f'Product Name: ||{license_name}||',
-                        f'Exp: ||{license_out_date}||',
-                        f'Key: `{license_key}`',
+                        f'Product Name: ||{l_name}||',
+                        f'Exp: ||{l_out_date}||',
+                        f'Key: `{l_key}`',
                         ''
                     ])
                     output_lines = '\n'.join([
                         '',
-                        f'🟢 Product Name: ||{license_name}||',
-                        f'🕐 Exp: {license_out_date}',
-                        f'🔑 Key: `{license_key}`',
+                        f'🟢 Product Name: ||{l_name}||',
+                        f'🕐 Exp: {l_out_date}',
+                        f'🔑 Key: `{l_key}`',
                         ''
                     ])
                     print(output_line)
@@ -551,11 +551,11 @@ def main(disable_exit=False):
                                 '',
                                 '-------------------------------------------------',
                                 f'Email: `{email_obj.email}`',
-                                f'Password: `{eset_password}`',
+                                f'Password: `{e_passwd}`',
                                 '',
-                                f'Product Name: ||{license_name}||',
-                                f'Exp: ||{license_out_date}||',
-                                f'Key: `{license_key}`',
+                                f'Product Name: ||{l_name}||',
+                                f'Exp: ||{l_out_date}||',
+                                f'Key: `{l_key}`',
                                 '',
                                 'VPN Codes:',
                                 f'{vpn_codes_line}',
