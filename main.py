@@ -530,7 +530,7 @@ def main(disable_exit=False):
                     print(output_line)
                     full_message = f"{output_lines}\n{pc_use}\n\n\n{important_note}\n\n\n{stay_tuned}\n{mention}\n"
                     try:
-                        bot.send_message(chat_id=-1002671083215, text=full_messages, parse_mode='MARKDOWNv2')
+                        bot.send_message(chat_id=-1002671083215, text=full_message, parse_mode='MARKDOWNv2')
                     except Exception as e:
                         print(f"Error sending message: {e}")
                     if args['vpn_codes']:
