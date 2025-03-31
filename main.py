@@ -509,7 +509,7 @@ def main(disable_exit=False):
                     important_note = ">❤️Show Your Support with Reactions❤️"
                     photo_path = 'img/essp.jpg'
                     stay_tuned = "Stay tuned for more\!"
-                    mention = "@FreeLicense4All"
+                    mention = "@FreeLicense1"
                     output_line = '\n'.join([
                         '',
                         f'Email: `{email_obj.email}`',
@@ -531,7 +531,7 @@ def main(disable_exit=False):
                     full_message = f"{output_lines}\n{pc_use}\n\n\n{important_note}\n\n\n{stay_tuned}\n{mention}\n"
                     try:
                         with open(photo_path, 'rb') as photo:
-                            bot.send_photo(chat_id=-1001370118432, photo=photo, caption=full_message, parse_mode='MARKDOWNv2')
+                            bot.send_photo(chat_id=-1002671083215, photo=photo, caption=full_message, parse_mode='MARKDOWNv2')
                     except Exception as e:
                         print(f"Error sending photo: {e}")
                     if args['vpn_codes']:
@@ -539,13 +539,13 @@ def main(disable_exit=False):
                         EV_obj.sendRequestForVPNCodes()
                         vpn_codes = EV_obj.getVPNCodes()
                         if not args['custom_email_api']:
-                            vpn_title = "ESET VPN Free License Key for 30 days"
+                            vpn_title = "||ESET VPN Free License Key for 30 days||"
                             vpn_sub_title = "Over 60 locations to choose"
                             proof = "📸Share a screenshot in the comments\!"
                             important_note = ">❤️Show Your Support with Reactions❤️"
                             photo_path = 'img/ESET_VPN.png'
                             stay_tuned = "Stay tuned for more\!"
-                            mention = "@FreeLicense4All"
+                            mention = "@@reeLicense1"
                             vpn_codes_line = '\n\n'.join([f'Key: `{vpn_code}`' for vpn_code in vpn_codes])
                             output_line = '\n'.join([
                                 '',
@@ -571,7 +571,7 @@ def main(disable_exit=False):
                             full_messages = f"{vpn_title}\n{vpn_sub_title}\n\n\n{vpnoutput_line}\n\n\n{important_note}\n\n\n{proof}\n\n\n{stay_tuned}\n{mention}\n"
                             try:
                                 with open(photo_path, 'rb') as photo:
-                                    bot.send_photo(chat_id=-1001370118432, photo=photo, caption=full_messages, parse_mode='MARKDOWNv2')
+                                    bot.send_photo(chat_id=-1002671083215, photo=photo, caption=full_messages, parse_mode='MARKDOWNv2')
                             except Exception as e:
                                 print(f"Error sending photo: {e}")
 
