@@ -505,7 +505,7 @@ def main(disable_exit=False):
                     EK_obj = EK(email_obj, driver, 'ESET HOME' if args['key'] else 'SMALL BUSINESS')
                     EK_obj.sendRequestForKey()
                     l_name, l_key, l_out_date = EK_obj.getLD()
-                    pc_use = r"*💻 Pc or Laptop*: Use the key without connecting your account\!"
+                    #pc_use = r"*💻 Pc or Laptop*: Use the key without connecting your account\!"
                     important_note = ">❤️Show Your Support with Reactions❤️"
                     #photo_path = 'img/essp.jpg'
                     stay_tuned = "Stay tuned for more\!"
@@ -522,15 +522,15 @@ def main(disable_exit=False):
                     ])
                     output_lines = '\n'.join([
                         '',
-                        f'🟢 Product Name: ||{l_name}||',
+                        f'🟢 Product Name: ||ＥＳＥＴ ＨＯＭＥ Ｓｅｃｕｒｉｔｙ Ｐｒｅｍｉｕｍ||',
                         f'🕐 Exp: {l_out_date}',
                         f'🔑 Key: `{l_key}`',
                         ''
                     ])
                     print(output_line)
-                    full_message = f"{output_lines}\n{pc_use}\n\n\n{important_note}\n\n\n{stay_tuned}\n{mention}\n"
+                    full_message = f"{output_lines}\n\n\n{important_note}\n\n\n{stay_tuned}\n{mention}\n"
                     try:
-                        bot.send_message(chat_id=-1002671083215, text=full_message, parse_mode='MARKDOWNv2')
+                        bot.send_message(chat_id=-1002669375057, text=full_message, parse_mode='MARKDOWNv2')
                     except Exception as e:
                         print(f"Error sending message: {e}")
                     if args['vpn_codes']:
@@ -538,9 +538,9 @@ def main(disable_exit=False):
                         EV_obj.sendRequestForVPNCodes()
                         vpn_codes = EV_obj.getVPNCodes()
                         if not args['custom_email_api']:
-                            vpn_title = "||ESET VPN Free License Key for 30 days||"
-                            vpn_sub_title = "Over 60 locations to choose"
-                            proof = "📸Share a screenshot in the comments\!"
+                            vpn_title = "||𝐸𝒮𝐸𝒯 𝒱𝒫𝒩 𝒻𝑜𝓇 𝟥𝟢 𝒹𝒶𝓎𝓈||"
+                            #vpn_sub_title = "Over 60 locations to choose"
+                            #proof = "📸Share a screenshot in the comments\!"
                             important_note = ">❤️Show Your Support with Reactions❤️"
                             #photo_path = 'img/ESET_VPN.png'
                             stay_tuned = "Stay tuned for more\!"
@@ -567,9 +567,9 @@ def main(disable_exit=False):
                                 ''
                             ])
                             print(output_line)
-                            full_messages = f"{vpn_title}\n{vpn_sub_title}\n\n\n{vpnoutput_line}\n\n\n{important_note}\n\n\n{proof}\n\n\n{stay_tuned}\n{mention}\n"
+                            full_messages = f"{vpn_title}\n\n{vpnoutput_line}\n\n\n{important_note}\n\n\n\n{stay_tuned}\n{mention}\n"
                             try:
-                                bot.send_message(chat_id=-1002671083215, text=full_messages, parse_mode='MARKDOWNv2')
+                                bot.send_message(chat_id=-1002669375057, text=full_messages, parse_mode='MARKDOWNv2')
                             except Exception as e:
                                 print(f"Error sending message: {e}")
 
