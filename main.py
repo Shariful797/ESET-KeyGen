@@ -509,7 +509,7 @@ def main(disable_exit=False):
                     important_note = ">❤️Show Your Support with Reactions❤️"
                     #photo_path = 'img/essp.jpg'
                     stay_tuned = "Stay tuned for more\!"
-                    mention = "@FreeLicense1"
+                    mention = "@TechGift"
                     output_line = '\n'.join([
                         '',
                         f'Email: `{email_obj.email}`',
@@ -522,7 +522,7 @@ def main(disable_exit=False):
                     ])
                     output_lines = '\n'.join([
                         '',
-                        f'🟢 Product Name: ||ＥＳＥＴ ＨＯＭＥ Ｓｅｃｕｒｉｔｙ Ｐｒｅｍｉｕｍ||',
+                        f'🟢 Product: ||𝔼𝕊𝔼𝕋 ℍ𝕆𝕄𝔼 𝕊𝕖𝕔𝕦𝕣𝕚𝕥𝕪 ℙ𝕣𝕖𝕞𝕚𝕦𝕞||',
                         f'🕐 Exp: {l_out_date}',
                         f'🔑 Key: `{l_key}`',
                         ''
@@ -544,7 +544,7 @@ def main(disable_exit=False):
                             important_note = ">❤️Show Your Support with Reactions❤️"
                             #photo_path = 'img/ESET_VPN.png'
                             stay_tuned = "Stay tuned for more\!"
-                            mention = "@FreeLicense1"
+                            mention = "@TechGift"
                             vpn_codes_line = '\n\n'.join([f'Key: `{vpn_code}`' for vpn_code in vpn_codes])
                             output_line = '\n'.join([
                                 '',
