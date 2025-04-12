@@ -528,7 +528,7 @@ def main(disable_exit=False):
                         ''
                     ])
                     print(output_line)
-                    full_message = f"{output_lines}\n\n{important_note}\n\n{stay_tuned}\n{mention}\n"
+                    full_message = f"{output_lines}\n\n{important_note}\n\n\n{stay_tuned}\n{mention}\n"
                     try:
                         bot.send_message(chat_id=-1002669375057, text=full_message, parse_mode='MARKDOWNv2')
                     except Exception as e:
