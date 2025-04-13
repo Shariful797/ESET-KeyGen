@@ -506,9 +506,9 @@ def main(disable_exit=False):
                     EK_obj.sendRequestForKey()
                     l_name, l_key, l_out_date = EK_obj.getLD()
                     #pc_use = r"*💻 Pc or Laptop*: Use the key without connecting your account\!"
-                    important_note = ">❤️𝒮𝒽𝑜𝓌 𝒴𝑜𝓊𝓇 𝒮𝓊𝓅𝓅𝑜𝓇𝓉 𝓌𝒾𝓉𝒽 𝑅𝑒𝒶𝒸𝓉𝒾𝑜𝓃𝓈❤️"
+                    important_note = ">❤️Sԋσɯ ყσυɾ Sυρρσɾƚ ɯιƚԋ Rҽαƈƚισɳʂ❤️"
                     #photo_path = 'img/essp.jpg'
-                    stay_tuned = "𝓢𝓽𝓪𝔂 𝓽𝓾𝓷𝓮𝓭 𝓯𝓸𝓻 𝓶𝓸𝓻𝓮\!"
+                    stay_tuned = "𝕊𝕥𝕒𝕪 𝕥𝕦𝕟𝕖𝕕 𝕗𝕠𝕣 𝕞𝕠𝕣𝕖\!"
                     mention = "@TechGift"
                     output_line = '\n'.join([
                         '',
@@ -522,7 +522,7 @@ def main(disable_exit=False):
                     ])
                     output_lines = '\n'.join([
                         '',
-                        f'🟢 ᴘʀᴏᴅᴜᴄᴛ: ||𝔼𝕊𝔼𝕋 ℍ𝕆𝕄𝔼 𝕊𝕖𝕔𝕦𝕣𝕚𝕥𝕪 ℙ𝕣𝕖𝕞𝕚𝕦𝕞||',
+                        f'🟢 ᴘʀᴏᴅᴜᴄᴛ: ||🅴🆂🅴🆃 ℍ𝕆𝕄𝔼 𝕊𝕖𝕔𝕦𝕣𝕚𝕥𝕪 ℙ𝕣𝕖𝕞𝕚𝕦𝕞||',
                         f'🕐 ᴇxᴘɪʀᴇᴅ ᴅᴀᴛᴇ: ||{l_out_date}||',
                         f'🔑 ᴋᴇʏ: `{l_key}`',
                         ''
@@ -538,12 +538,12 @@ def main(disable_exit=False):
                         EV_obj.sendRequestForVPNCodes()
                         vpn_codes = EV_obj.getVPNCodes()
                         if not args['custom_email_api']:
-                            vpn_title = "||𝐸𝒮𝐸𝒯 𝒱𝒫𝒩 𝒻𝑜𝓇 𝟥𝟢 𝒹𝒶𝓎𝓈||"
+                            vpn_title = "||🅴🆂🅴🆃 VPN ϝσɾ 30 Dαყʂ.||"
                             #vpn_sub_title = "Over 60 locations to choose"
                             #proof = "📸Share a screenshot in the comments\!"
-                            important_note = ">❤️𝒮𝒽𝑜𝓌 𝒴𝑜𝓊𝓇 𝒮𝓊𝓅𝓅𝑜𝓇𝓉 𝓌𝒾𝓉𝒽 𝑅𝑒𝒶𝒸𝓉𝒾𝑜𝓃𝓈❤️"
+                            important_note = ">❤️Sԋσɯ ყσυɾ Sυρρσɾƚ ɯιƚԋ Rҽαƈƚισɳʂ❤️"
                             #photo_path = 'img/ESET_VPN.png'
-                            stay_tuned = "𝓢𝓽𝓪𝔂 𝓽𝓾𝓷𝓮𝓭 𝓯𝓸𝓻 𝓶𝓸𝓻𝓮\!"
+                            stay_tuned = "𝕊𝕥𝕒𝕪 𝕥𝕦𝕟𝕖𝕕 𝕗𝕠𝕣 𝕞𝕠𝕣𝕖\!"
                             mention = "@TechGift"
                             vpn_codes_line = '\n\n'.join([f'Key: `{vpn_code}`' for vpn_code in vpn_codes])
                             output_line = '\n'.join([
