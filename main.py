@@ -545,7 +545,7 @@ def main(disable_exit=False):
                             #photo_path = 'img/ESET_VPN.png'
                             stay_tuned = "𝕊𝕥𝕒𝕪 𝕥𝕦𝕟𝕖𝕕 𝕗𝕠𝕣 𝕞𝕠𝕣𝕖\!"
                             mention = "@TechGift"
-                            vpn_codes_line = '\n\n'.join([f'Key: `{vpn_code}`' for vpn_code in vpn_codes])
+                            vpn_codes_line = '\n\n'.join([f'Kҽყ: `{vpn_code}`' for vpn_code in vpn_codes])
                             output_line = '\n'.join([
                                 '',
                                 '-------------------------------------------------',
