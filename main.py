@@ -524,7 +524,7 @@ def main(disable_exit=False):
                         '',
                         f'🟢 ᴘʀᴏᴅᴜᴄᴛ: ||🅴🆂🅴🆃 ℍ𝕆𝕄𝔼 𝕊𝕖𝕔𝕦𝕣𝕚𝕥𝕪 ℙ𝕣𝕖𝕞𝕚𝕦𝕞||',
                         f'🕐 ᴇxᴘɪʀᴇᴅ ᴅᴀᴛᴇ: ||{l_out_date}||',
-                        f'🔑 ᴋᴇʏ: `{l_key}`',
+                        f'🔑 Kҽყ: `{l_key}`',
                         ''
                     ])
                     print(output_line)
@@ -554,7 +554,7 @@ def main(disable_exit=False):
                                 '',
                                 f'Product Name: ||{l_name}||',
                                 f'Exp: ||{l_out_date}||',
-                                f'Key: `{l_key}`',
+                                f'Kҽყ: `{l_key}`',
                                 '',
                                 'VPN Codes:',
                                 f'{vpn_codes_line}',
