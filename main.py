@@ -538,7 +538,7 @@ def main(disable_exit=False):
                         EV_obj.sendRequestForVPNCodes()
                         vpn_codes = EV_obj.getVPNCodes()
                         if not args['custom_email_api']:
-                            vpn_title = "||🅴🆂🅴🆃 VPN ϝσɾ 30 Dαყʂ.||"
+                            vpn_title = "||🅴🆂🅴🆃 VPN ϝσɾ 30 Dαყʂ||"
                             #vpn_sub_title = "Over 60 locations to choose"
                             #proof = "📸Share a screenshot in the comments\!"
                             important_note = ">❤️Sԋσɯ ყσυɾ Sυρρσɾƚ ɯιƚԋ Rҽαƈƚισɳʂ❤️"
