@@ -21,7 +21,7 @@ on:
         - fakemail
         - inboxes
         - incognitomail
-        default: fakemail
+        default: guerrillamail
       key_type:
         description: 'Modes of operation'
         required: true
@@ -60,7 +60,7 @@ jobs:
             # Default values for scheduled runs
             ACCOUNT=0
             KEY=1
-            MAIL=fakemail
+            MAIL=guerrillamail
             KEY_TYPE=--vpn-codes
             OS=macOS
           fi
