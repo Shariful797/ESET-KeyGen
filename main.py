@@ -1,3 +1,4 @@
+import telebot
 import contextlib
 import logging
 import pathlib
@@ -84,7 +85,7 @@ args = {
     'skip_update_check': False,
     'no_logo': False,
     'disable_progress_bar': False,
-    'disable_output_file': False,
+    'disable_output_file': True,
     'repeat': 1,
     'proxy_file': DEFAULT_PATH_TO_PROXY_FILE,
     
@@ -454,7 +455,9 @@ def main(disable_exit=False):
                 logging.error("EXC_INFO:", exc_info=True)
                 #console_log(e, ERROR, silent_mode=SILENT_MODE)
         
-        # initialization and configuration of everything necessary for work            
+        # initialization and configuration of everything necessary for work     
+        token_value = args['token']
+        bot = telebot.TeleBot(token_value, parse_mode='MARKDOWNv2')
         webdriver_path = None
         browser_name = GOOGLE_CHROME
         custom_browser_location = None if args['custom_browser_location'] == '' else args['custom_browser_location']
