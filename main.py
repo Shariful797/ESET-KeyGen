@@ -354,6 +354,7 @@ def parse_argv(sys_argv=None):
         args_parser.add_argument('--disable-output-file', action='store_true', help='Disables the output txt file generation')
         args_parser.add_argument('--repeat', type=int, default=1, help='Specifies how many times to repeat generation')
         args_parser.add_argument('--proxy-file', type=str, default=DEFAULT_PATH_TO_PROXY_FILE, help=f'Specifies the path from where the list of proxies will be read from, default - {DEFAULT_PATH_TO_PROXY_FILE}')
+        args_parser.add_argument('--token', help='Token value')
 
         # Logging
         args_logging = args_parser.add_mutually_exclusive_group()
