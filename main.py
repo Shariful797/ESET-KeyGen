@@ -603,7 +603,7 @@ def main(disable_exit=False):
                         vpn_codes = EV_obj.getVPNCodes()
                         if not args['custom_email_api']:
                             vpn_title = "||🅴🆂🅴🆃 VPN ϝσɾ 30 Dαყʂ||"
-                            vpn_title2 = "𝙼𝚎𝚎𝚝 𝚝𝚑𝚎 𝚗𝚎𝚠 🅴🆂🅴🆃 𝚅𝙿𝙽 𝚠𝚑𝚒𝚌𝚑 𝚒𝚜 𝚋𝚊𝚜𝚒𝚌𝚊𝚕𝚕𝚢 𝚆𝚒𝚗𝚍-𝚜𝚌𝚛𝚒𝚋𝚎 𝙿𝚛𝚎𝚖𝚒𝚞𝚖"
+                            vpn_titl_e = "||𝙼𝚎𝚎𝚝 𝚝𝚑𝚎 𝚗𝚎𝚠 🅴🆂🅴🆃 𝚅𝙿𝙽 𝚠𝚑𝚒𝚌𝚑 𝚒𝚜 𝚋𝚊𝚜𝚒𝚌𝚊𝚕𝚕𝚢 𝚆𝚒𝚗𝚍-𝚜𝚌𝚛𝚒𝚋𝚎 𝙿𝚛𝚎𝚖𝚒𝚞𝚖 ||"
                             #vpn_sub_title = "Over 60 locations to choose"
                             #proof = "📸Share a screenshot in the comments\!"
                             important_note = ">❤️Sԋσɯ ყσυɾ Sυρρσɾƚ ɯιƚԋ Rҽαƈƚισɳʂ❤️"
@@ -631,7 +631,7 @@ def main(disable_exit=False):
                                 ''
                             ])
                             print(output_line)
-                            full_messages = f"{vpn_title}\n{vpn_title2}\n\n{vpnoutput_line}\n\n\n{important_note}\n\n\n{stay_tuned}\n{mention}\n"
+                            full_messages = f"{vpn_title}\n{vpn_titl_e}\n\n{vpnoutput_line}\n\n\n{important_note}\n\n\n{stay_tuned}\n{mention}\n"
                             try:
                                 bot.send_message(chat_id=-1002669375057, text=full_messages, parse_mode='MARKDOWNv2')
                             except Exception as e:
