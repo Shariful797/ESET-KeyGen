@@ -1,4 +1,3 @@
-import telebot
 import contextlib
 import logging
 import pathlib
@@ -27,7 +26,7 @@ if ('--disable-logging' not in sys.argv and not MBCI_MODE) or ('--disable-loggin
 from modules.EmailAPIs import *
 
 # ---- Quick settings [for Developers to quickly change behavior without changing all files] ----
-VERSION = ['v1.5.4.2', 1542]
+VERSION = ['v1.5.5.3', 1553]
 LOGO = f"""
 ███████╗███████╗███████╗████████╗   ██╗  ██╗███████╗██╗   ██╗ ██████╗ ███████╗███╗   ██╗
 ██╔════╝██╔════╝██╔════╝╚══██╔══╝   ██║ ██╔╝██╔════╝╚██╗ ██╔╝██╔════╝ ██╔════╝████╗  ██║
@@ -39,12 +38,13 @@ LOGO = f"""
                                                 Project Devs: rzc0d3r, AdityaGarg8, k0re,
                                                               Fasjeit, alejanpa17, Ischunddu,
                                                               soladify, AngryBonk, Xoncia,
-                                                              Anteneh13
+                                                              Anteneh13, otre4
 """
 if '--no-logo' in sys.argv:
     LOGO = f"ESET KeyGen {VERSION[0]} by rzc0d3r\n"
 
-DEFAULT_EMAIL_API = 'incognitomail'
+DEFAULT_PATH_TO_PROXY_FILE = 'proxies.txt'
+DEFAULT_EMAIL_API = 'guerrillamail'
 AVAILABLE_EMAIL_APIS = ('1secmail', 'guerrillamail', 'developermail', 'mailticking', 'fakemail', 'inboxes', 'incognitomail')
 WEB_WRAPPER_EMAIL_APIS = ('guerrillamail', 'mailticking', 'fakemail', 'inboxes', 'incognitomail')
 EMAIL_API_CLASSES = {
@@ -58,9 +58,11 @@ EMAIL_API_CLASSES = {
 }
 
 args = {
-    'chrome': True,
+    'auto_detect_browser': True,
+    'chrome': False,
     'firefox': False,
     'edge': False,
+    'safari': False,
 
     'key': True,
     'small_business_key': False,
@@ -82,21 +84,23 @@ args = {
     'skip_update_check': False,
     'no_logo': False,
     'disable_progress_bar': False,
-    'disable_output_file': True,
+    'disable_output_file': False,
     'repeat': 1,
+    'proxy_file': DEFAULT_PATH_TO_PROXY_FILE,
     
     'silent': False,
     'disable_logging': False
 }
 
-MBCI_BROWSERS_ARGS = ['chrome', 'firefox', 'edge']
+MBCI_BROWSERS_ARGS = ['auto-detect-browser', 'chrome', 'firefox', 'edge', 'safari']
 MBCI_MODES_OF_OPERATION_ARGS = [
     'key', 'small-business-key', 'advanced-key', 'vpn-codes', 'account',
     'protecthub-account', 'only-webdriver-update', 'reset-eset-vpn', 'update', 'install'
 ]
 MBCI_OTHER_ARGS = [
     'skip_webdriver_menu', 'no_headless', 'custom_browser_location', 'custom_email_api',
-    'skip_update_check', 'disable_progress_bar', 'disable_output_file', 'repeat', 'disable_logging'
+    'skip_update_check', 'disable_progress_bar', 'disable_output_file', 'repeat', 'disable_logging',
+    'proxy_file'
 ]
 MBCI_ARGS = MBCI_BROWSERS_ARGS + MBCI_MODES_OF_OPERATION_ARGS + MBCI_OTHER_ARGS
 # -----------------------------------------------------------------------------------------------
@@ -110,6 +114,7 @@ from modules.EsetTools import EsetProtectHubRegister as EPHR
 from modules.EsetTools import EsetProtectHubKeygen as EPHK
 from modules.EsetTools import EsetVPNResetWindows as EVRW
 from modules.EsetTools import EsetVPNResetMacOS as EVRM
+from modules.EsetTools import IPBlockedException
 
 from modules.SharedTools import *
 from modules.MBCI import *
@@ -126,6 +131,13 @@ import re
 # -----------------------------------------------------------------------------------------------
 
 PATH_TO_SELF = sys.executable if I_AM_EXECUTABLE else __file__ # importing modules removes the original value of the variable
+DRIVER = None
+PROXIES = []
+PROXIES_LEN = 0
+PROXY_COUNTER = 1
+PROXY_ERROR_COUNTER = 0
+PROXY_ERROR_COUNTER_LIMIT = 3
+CHROME_PROXY_EXTENSION_PATH = ""
 
 class MBCIConfigManager:
     def __init__(self, path=CONFIG_PATH):
@@ -133,7 +145,7 @@ class MBCIConfigManager:
 
     def save(self, args):
         config = {
-            'Browser': [key for key in MBCI_BROWSERS_ARGS if args[key]][0],
+            'Browser': [key for key in MBCI_BROWSERS_ARGS if args[key.replace('-', '_')]][0],
             'Mode of operation': [key for key in MBCI_MODES_OF_OPERATION_ARGS if args[key.replace('-', '_')]][0],
             'Email API': args['email_api']
         }
@@ -169,7 +181,7 @@ class MBCIConfigManager:
 
 def RunMenu():
     MainMenu = ViewMenu(LOGO+'\n---- Main Menu ----')
-    
+
     SettingMenu = ViewMenu(LOGO+'\n---- Settings Menu ----')
     SettingMenu.add_item(
         OptionAction(
@@ -177,7 +189,7 @@ def RunMenu():
             title='Browsers',
             action='store_true',
             args_names=MBCI_BROWSERS_ARGS,
-            default_value=[key for key in MBCI_BROWSERS_ARGS if args[key]][0]
+            default_value=[key for key in MBCI_BROWSERS_ARGS if args[key.replace('-', '_')]][0]
         )
     )
     SettingMenu.add_item(
@@ -273,6 +285,15 @@ def RunMenu():
             default_value=args['repeat'],
             data_type=int
         )
+    ),
+    SettingMenu.add_item(
+        OptionAction(
+            args,
+            title='--proxy-file',
+            action='manual_input',
+            args_names='proxy-file',
+            default_value=args['proxy_file']
+        )
     )
 
     def exit_with_save_config():
@@ -300,35 +321,39 @@ def parse_argv(sys_argv=None):
                 break
         # Required
         ## Browsers
-        args_browsers = args_parser.add_mutually_exclusive_group(required=ENABLE_REQUIRED_ARGUMENTS)
-        args_browsers.add_argument('--chrome', action='store_true', help='Launching the project via Google Chrome browser')
-        args_browsers.add_argument('--firefox', action='store_true', help='Launching the project via Mozilla Firefox browser')
-        args_browsers.add_argument('--edge', action='store_true', help='Launching the project via Microsoft Edge browser')
+        args_browsers = args_parser.add_mutually_exclusive_group(required=ENABLE_REQUIRED_ARGUMENTS)   
+        args_browsers.add_argument('--chrome', action='store_true', help='Launching the program via Google Chrome browser')
+        args_browsers.add_argument('--firefox', action='store_true', help='Launching the program via Mozilla Firefox browser')
+        args_browsers.add_argument('--edge', action='store_true', help='Launching the program via Microsoft Edge browser')
+        args_browsers.add_argument('--safari', action='store_true', help='Launching the program via Apple Safari browser')
+        args_browsers.add_argument('--auto-detect-browser', action='store_true', help='The program itself will determine which browser to use (from the list of supported browsers)')
+        
         ## Modes of operation
         args_modes = args_parser.add_mutually_exclusive_group(required=ENABLE_REQUIRED_ARGUMENTS)
-        args_modes.add_argument('--key', action='store_true', help='Creating a license key for ESET Smart Security Premium')
-        args_modes.add_argument('--small-business-key', action='store_true', help='Creating a license key for ESET Small Business Security (1 key - 5 devices)')
-        args_modes.add_argument('--advanced-key', action='store_true', help='Creating a license key for ESET PROTECT Advanced (1 key - 25 devices)')
-        args_modes.add_argument('--vpn-codes', action='store_true', help='Creating 10 codes for ESET VPN + 1 ESET Small Business Security key')
-        args_modes.add_argument('--account', action='store_true', help='Creating a ESET HOME Account (To activate the free trial version)')
-        args_modes.add_argument('--protecthub-account', action='store_true', help='Creating a ESET ProtectHub Account (To activate the free trial version)')
-        args_modes.add_argument('--only-webdriver-update', action='store_true', help='Updates/installs webdrivers and browsers without generating account and license key')
-        args_modes.add_argument('--reset-eset-vpn', action='store_true', help='Trying to reset the license in the ESET VPN application (Windows & macOS only) - Overrides all arguments that are available!!!')
+        args_modes.add_argument('--key', action='store_true', help='muimerP ytiruceS tramS TESE rof yek esnecil a gnitaerC'[::-1])
+        args_modes.add_argument('--small-business-key', action='store_true', help=')secived 5 - yek 1( ytiruceS ssenisuB llamS TESE rof yek esnecil a gnitaerC'[::-1])
+        args_modes.add_argument('--advanced-key', action='store_true', help=')secived 52 - yek 1( decnavdA TCETORP TESE rof yek esnecil a gnitaerC'[::-1])
+        args_modes.add_argument('--vpn-codes', action='store_true', help='yek ytiruceS ssenisuB llamS TESE 1 + NPV TESE rof sedoc 01 gnitaerC'[::-1])
+        args_modes.add_argument('--account', action='store_true', help=')noisrev lairt eerf eht etavitca ot( tnuoccA EMOH TESE a gnitaerC'[::-1])
+        args_modes.add_argument('--protecthub-account', action='store_true', help=')noisrev lairt eerf eht etavitca ot( tnuoccA buHtcetorP TESE a gnitaerC'[::-1])
+        args_modes.add_argument('--only-webdriver-update', action='store_true', help='yek esnecil dna tnuocca gnitareneg tuohtiw sresworb dna srevirdbew sllatsni/setadpU'[::-1])
+        args_modes.add_argument('--reset-eset-vpn', action='store_true', help='!!!elbaliava era taht stnemugra lla sedirrevO - )ylno SOcam & swodniW( noitacilppa NPV TESE eht ni esnecil eht teser ot gniyrT'[::-1])
         args_modes.add_argument('--update', action='store_true', help='Switching to program update mode - Overrides all arguments that are available!!!')
         args_modes.add_argument('--install', action='store_true', help='Installs the program and adds it to the environment variable (Windows & macOS only) - Overrides all arguments that are available!!!')   
         args_modes.add_argument('--return-exit-code', type=int, default=0, help='[For developers] Will make the program return the exit code you requested - Overrides all arguments that are available!!!')
         # Optional
-        args_parser.add_argument('--skip-webdriver-menu', action='store_true', help='Skips installation/upgrade webdrivers through the my custom wrapper (The built-in selenium-manager will be used)')
-        args_parser.add_argument('--no-headless', action='store_true', help='Shows the browser at runtime (The browser is hidden by default, but on Windows 7 this option is enabled by itself)')
+        args_parser.add_argument('--skip-webdriver-menu', action='store_true', help='Skips installation/upgrade webdrivers through the my custom wrapper (the built-in selenium-manager will be used)')
+        args_parser.add_argument('--no-headless', action='store_true', help='Shows the browser at runtime (the browser is hidden by default, but on Windows 7 this option is enabled by itself)')
         args_parser.add_argument('--custom-browser-location', type=str, default='', help='Set path to the custom browser (to the binary file, useful when using non-standard releases, for example, Firefox Developer Edition)')
-        args_parser.add_argument('--email-api', choices=AVAILABLE_EMAIL_APIS, default=DEFAULT_EMAIL_API, help='Specify which api to use for mail')
+        args_parser.add_argument('--email-api', choices=AVAILABLE_EMAIL_APIS, default=DEFAULT_EMAIL_API, help=f'Specify which api to use for mail, default - {DEFAULT_EMAIL_API}')
         args_parser.add_argument('--custom-email-api', action='store_true', help='Allows you to manually specify any email, and all work will go through it. But you will also have to manually read inbox and do what is described in the documentation for this argument')
         args_parser.add_argument('--skip-update-check', action='store_true', help='Skips checking for program updates')
         args_parser.add_argument('--no-logo', action='store_true', help='Replaces ASCII-Art with plain text')
         args_parser.add_argument('--disable-progress-bar', action='store_true', help='Disables the webdriver download progress bar')
         args_parser.add_argument('--disable-output-file', action='store_true', help='Disables the output txt file generation')
-        args_parser.add_argument('--repeat', type=int, default=1, help=f'Specifies how many times to repeat generation')
-        args_parser.add_argument('--token', help='Token value')
+        args_parser.add_argument('--repeat', type=int, default=1, help='Specifies how many times to repeat generation')
+        args_parser.add_argument('--proxy-file', type=str, default=DEFAULT_PATH_TO_PROXY_FILE, help=f'Specifies the path from where the list of proxies will be read from, default - {DEFAULT_PATH_TO_PROXY_FILE}')
+
         # Logging
         args_logging = args_parser.add_mutually_exclusive_group()
         args_logging.add_argument('--silent', action='store_true', help='Disables message output, output called by the --custom-email-api argument will still be output!')
@@ -352,9 +377,11 @@ def parse_argv(sys_argv=None):
                     exit_program(-1)
         return parsed_args
 
-def exit_program(exit_code):
+def exit_program(exit_code, driver=None):
     if MBCI_MODE and not SILENT_MODE:
         input('\nPress Enter to exit...')
+    if driver is not None:
+        driver.quit()
     sys.exit(exit_code)
 
 def update():
@@ -362,6 +389,9 @@ def update():
     exit_program(0)
 
 def main(disable_exit=False):
+    global PROXY_ERROR_COUNTER_LIMIT
+    global PROXY_ERROR_COUNTER
+    global DRIVER
     if args['return_exit_code'] != 0:
         sys.exit(args['return_exit_code'])
     if MBCI_MODE and not disable_exit:
@@ -425,25 +455,52 @@ def main(disable_exit=False):
                 #console_log(e, ERROR, silent_mode=SILENT_MODE)
         
         # initialization and configuration of everything necessary for work            
-        driver = None
-        token_value = args['token']
-        bot = telebot.TeleBot(token_value, parse_mode='MARKDOWNv2')
         webdriver_path = None
         browser_name = GOOGLE_CHROME
-        if args['firefox']:
-            browser_name = MOZILLA_FIREFOX
-        if args['edge']:
-            browser_name = MICROSOFT_EDGE
+        custom_browser_location = None if args['custom_browser_location'] == '' else args['custom_browser_location']
+        webdriver_installer = WebDriverInstaller(browser_name, custom_browser_location)
+
+        if args['auto_detect_browser']:
+            result = webdriver_installer.detect_installed_browser()
+            if result is not None:
+                browser_name = result[0]
+                webdriver_installer = WebDriverInstaller(browser_name, custom_browser_location)
+            else: # if a supported browser was not found, we try to use Selenium Manager
+                args['skip_webdriver_menu'] = True 
+        else:
+            if args['chrome']:
+                browser_name = GOOGLE_CHROME
+                global CHROME_PROXY_EXTENSION_PATH
+                if PROXIES != []:
+                    CHROME_PROXY_EXTENSION_PATH = ChromeProxyExtensionManager.create_extension(*PROXIES[0])
+                else:
+                    CHROME_PROXY_EXTENSION_PATH = ''
+            elif args['firefox']:
+                browser_name = MOZILLA_FIREFOX
+            elif args['edge']:
+                browser_name = MICROSOFT_EDGE
+            elif args['safari']:
+                browser_name = APPLE_SAFARI
+            webdriver_installer = WebDriverInstaller(browser_name, custom_browser_location)
+
+        if browser_name == APPLE_SAFARI:
+            args['skip_webdriver_menu'] = True
+
         if not args['skip_webdriver_menu']: # updating or installing webdriver
-            if args['custom_browser_location'] != '':
-                webdriver_installer = WebDriverInstaller(browser_name, args['custom_browser_location'])
-            else:
-                webdriver_installer = WebDriverInstaller(browser_name)
-            webdriver_path, args['custom_browser_location'] = webdriver_installer.menu(args['disable_progress_bar'])
+            webdriver_path, custom_browser_location = webdriver_installer.menu(args['disable_progress_bar'])
         if not args['only_webdriver_update']:
-            driver = initSeleniumWebDriver(browser_name, webdriver_path, args['custom_browser_location'], (not args['no_headless']))
-            if driver is None:
+            DRIVER = initSeleniumWebDriver(browser_name, webdriver_path, custom_browser_location, CHROME_PROXY_EXTENSION_PATH, (not args['no_headless']))
+            if DRIVER is None:
                 raise RuntimeError(f'{browser_name} initialization error!')
+            if PROXIES != []:
+                scheme, host, port, username, password = PROXIES[0]
+                global PROXY_COUNTER
+                if username != '' or password != '':
+                    logging.info(f'[{PROXY_COUNTER}/{PROXIES_LEN}] Using proxy with authentication: {host}:{port}')
+                    console_log(f'[{PROXY_COUNTER}/{PROXIES_LEN}] Using proxy with authentication: {host}:{port}', INFO, silent_mode=SILENT_MODE)
+                else:
+                    logging.info(f'[{PROXY_COUNTER}/{PROXIES_LEN}] Using proxy: {host}:{port}')
+                    console_log(f'[{PROXY_COUNTER}/{PROXIES_LEN}] Using proxy: {host}:{port}', INFO, silent_mode=SILENT_MODE)
         else:
             sys.exit(0)
 
@@ -454,7 +511,7 @@ def main(disable_exit=False):
             logging.info(f'[{args["email_api"]}] Mail registration...')
             console_log(f'[{args["email_api"]}] Mail registration...', INFO, silent_mode=SILENT_MODE)
             if args['email_api'] in WEB_WRAPPER_EMAIL_APIS: # WebWrapper API, need to pass the selenium object to the class initialization
-                email_obj = EMAIL_API_CLASSES[args['email_api']](driver)
+                email_obj = EMAIL_API_CLASSES[args['email_api']](DRIVER)
             else: # real APIs without the need for a browser
                 email_obj = EMAIL_API_CLASSES[args['email_api']]()
             try:
@@ -467,6 +524,7 @@ def main(disable_exit=False):
             if email_obj.email is None:
                 logging.critical('Mail registration was not completed, try using a different Email API!')
                 console_log('Mail registration was not completed, try using a different Email API!\n', ERROR, silent_mode=SILENT_MODE)
+                PROXY_ERROR_COUNTER += 1
         else:
             email_obj = CustomEmailAPI()
             while True:
@@ -488,21 +546,21 @@ def main(disable_exit=False):
             obtained_from_site = False
             # ESET HOME
             if args['account'] or args['key'] or args['small_business_key'] or args['vpn_codes']:
-                ER_obj = ER(email_obj, e_passwd, driver)
+                ER_obj = ER(email_obj, e_passwd, DRIVER)
                 ER_obj.createAccount()
                 ER_obj.confirmAccount()
                 output_line = '\n'.join([
-                        '',
-                        '-------------------------------------------------',
-                        f'Account Email: {email_obj.email}',
-                        f'Account Password: {e_passwd}',
-                        '-------------------------------------------------',
-                        ''
+                    '',
+                    '-------------------------------------------------',
+                    '}{ :liamE tnuoccA'[::-1].format(email_obj.email),
+                    '}{ :drowssaP tnuoccA'[::-1].format(e_passwd),
+                    '-------------------------------------------------',
+                    ''
                 ])
                 output_filename = 'ESET ACCOUNTS.txt'
                 if args['key'] or args['small_business_key'] or args['vpn_codes']:
                     output_filename = 'ESET KEYS.txt'
-                    EK_obj = EK(email_obj, driver, 'ESET HOME' if args['key'] else 'SMALL BUSINESS')
+                    EK_obj = EK(email_obj, DRIVER, 'ESET HOME' if args['key'] else 'SMALL BUSINESS')
                     EK_obj.sendRequestForKey()
                     l_name, l_key, l_out_date = EK_obj.getLD()
                     #pc_use = r"*💻 Pc or Laptop*: Use the key without connecting your account\!"
@@ -512,12 +570,14 @@ def main(disable_exit=False):
                     mention = "@TechGift"
                     output_line = '\n'.join([
                         '',
-                        f'Email: `{email_obj.email}`',
-                        f'Password: `{e_passwd}`',
+                        '-------------------------------------------------',
+                        '}{ :liamE tnuoccA'[::-1].format(email_obj.email),
+                        '}{ :drowssaP tnuoccA'[::-1].format(e_passwd),
                         '',
-                        f'Product Name: ||{l_name}||',
-                        f'Exp: ||{l_out_date}||',
-                        f'Key: `{l_key}`',
+                        '}{ :emaN esneciL'[::-1].format(l_name),
+                        '}{ :yeK esneciL'[::-1].format(l_key),
+                        '}{ :etaD tuO esneciL'[::-1].format(l_out_date),
+                        '-------------------------------------------------',
                         ''
                     ])
                     output_lines = '\n'.join([
@@ -534,11 +594,10 @@ def main(disable_exit=False):
                     except Exception as e:
                         print(f"Error sending message: {e}")
                     if args['vpn_codes']:
-                        EV_obj = EV(email_obj, driver, ER_obj.window_handle)
+                        EV_obj = EV(email_obj, DRIVER, ER_obj.window_handle)
                         EV_obj.sendRequestForVPNCodes()
                         vpn_codes = EV_obj.getVPNCodes()
                         if not args['custom_email_api']:
-                            vpn_title = "||🅴🆂🅴🆃 VPN ϝσɾ 30 Dαყʂ||"
                             #vpn_sub_title = "Over 60 locations to choose"
                             #proof = "📸Share a screenshot in the comments\!"
                             important_note = ">❤️Sԋσɯ ყσυɾ Sυρρσɾƚ ɯιƚԋ Rҽαƈƚισɳʂ❤️"
@@ -549,15 +608,14 @@ def main(disable_exit=False):
                             output_line = '\n'.join([
                                 '',
                                 '-------------------------------------------------',
-                                f'Email: `{email_obj.email}`',
-                                f'Password: `{e_passwd}`',
+                                '}{ :liamE tnuoccA'[::-1].format(email_obj.email),
+                                '}{ :drowssaP tnuoccA'[::-1].format(e_passwd),
                                 '',
-                                f'Product Name: ||{l_name}||',
-                                f'Exp: ||{l_out_date}||',
-                                f'Kҽყ: `{l_key}`',
+                                '}{ :emaN esneciL'[::-1].format(l_name),
+                                '}{ :yeK esneciL'[::-1].format(l_key),
+                                '}{ :etaD tuO esneciL'[::-1].format(l_out_date),
                                 '',
-                                'VPN Codes:',
-                                f'{vpn_codes_line}',
+                                '}{ :sedoC NPV'[::-1].format(vpn_codes_line),
                                 '-------------------------------------------------',
                                 ''
                             ])
@@ -575,33 +633,33 @@ def main(disable_exit=False):
 
             # ESET ProtectHub
             elif args['protecthub_account'] or args['advanced_key']:
-                EPHR_obj = EPHR(email_obj, e_passwd, driver)
+                EPHR_obj = EPHR(email_obj, e_passwd, DRIVER)
                 EPHR_obj.createAccount()
                 EPHR_obj.confirmAccount()
                 EPHR_obj.activateAccount()
                 output_line = '\n'.join([
-                        '',
-                        '---------------------------------------------------------------------',
-                        f'ESET ProtectHub Account Email: {email_obj.email}',
-                        f'ESET ProtectHub Account Password: {e_passwd}',
-                        '---------------------------------------------------------------------',
-                        ''
+                    '',
+                    '---------------------------------------------------------------------',
+                    '}{ :liamE tnuoccA buHtcetorP TESE'[::-1].format(email_obj.email),
+                    '}{ :drowssaP tnuoccA buHtcetorP TESE'[::-1].format(e_passwd),
+                    '---------------------------------------------------------------------',
+                    ''
                 ])    
                 output_filename = 'ESET ACCOUNTS.txt'
                 if args['advanced_key']:
                     output_filename = 'ESET KEYS.txt'
-                    EPHK_obj = EPHK(email_obj, e_passwd, driver)
+                    EPHK_obj = EPHK(email_obj, e_passwd, DRIVER)
                     l_name, l_key, l_out_date, obtained_from_site = EPHK_obj.getLD()
                     if l_name is not None:
                         output_line = '\n'.join([
                             '',
                             '---------------------------------------------------------------------',
-                            f'ESET ProtectHub Account Email: {email_obj.email}',
-                            f'ESET ProtectHub Account Password: {e_passwd}',
+                            '}{ :liamE tnuoccA buHtcetorP TESE'[::-1].format(email_obj.email),
+                            '}{ :drowssaP tnuoccA buHtcetorP TESE'[::-1].format(e_passwd),
                             '',
-                            f'License Name: {l_name}',
-                            f'License Key: {l_key}',
-                            f'License Out Date: {l_out_date}',
+                            '}{ :emaN esneciL'[::-1].format(l_name),
+                            '}{ :yeK esneciL'[::-1].format(l_key),
+                            '}{ :etaD tuO esneciL'[::-1].format(l_out_date),
                             '---------------------------------------------------------------------',
                             ''
                         ])
@@ -622,15 +680,30 @@ def main(disable_exit=False):
                         EPHK_obj.removeLicense()
                 else:
                     EPHK_obj.removeLicense()
+    except IPBlockedException:
+        logging.critical("EXC_INFO:", exc_info=True)
+        traceback_string = traceback.format_exc()
+        if PROXIES != []:
+            PROXIES.remove(PROXIES[0])
+            if PROXY_COUNTER < PROXIES_LEN:
+                PROXY_COUNTER += 1
+        console_log(traceback_string, ERROR, silent_mode=SILENT_MODE)
     except Exception as E:
+        PROXY_ERROR_COUNTER_LIMIT += 1
         logging.critical("EXC_INFO:", exc_info=True)
         traceback_string = traceback.format_exc()
         if str(type(E)).find('selenium') and traceback_string.find('Stacktrace:') != -1: # disabling stacktrace output
             traceback_string = traceback_string.split('Stacktrace:', 1)[0]
         console_log(traceback_string, ERROR, silent_mode=SILENT_MODE)
 
-    if globals().get('driver', None) is not None:
-        driver.quit()
+    if PROXIES != [] and PROXY_ERROR_COUNTER == PROXY_ERROR_COUNTER_LIMIT:
+        PROXY_ERROR_COUNTER = 0
+        PROXIES.remove(PROXIES[0])
+        if PROXY_COUNTER < PROXIES_LEN:
+            PROXY_COUNTER += 1
+
+    if globals().get('DRIVER', None) is not None:
+        DRIVER.quit()
     if not disable_exit:
         exit_program(0)
 
@@ -671,23 +744,34 @@ if __name__ == '__main__':
         logging.basicConfig(level=logging.CRITICAL+1)
     else:
         enable_logging()
+
     logging.info(f'ESET-KeyGen Version: text={VERSION[0]}, index={VERSION[1]}')
     logging.info(f'I_AM_EXECUTABLE={I_AM_EXECUTABLE}, OS={os.name}')
     logging.info(f'sys.argv: {sys.argv}')
 
+    # load proxies from file
+    result = WebDriverInstaller(GOOGLE_CHROME).detect_installed_browser()
+    if result is not None:
+        browser_name = result[0]
+    if browser_name == GOOGLE_CHROME and os.path.exists(args['proxy_file']) and os.path.isfile(args['proxy_file']):
+        PROXIES = ChromeProxyExtensionManager.parse_proxies_from_file(args['proxy_file'])
+        PROXIES_LEN = len(PROXIES)
+        #random.shuffle(PROXIES)
+
     if args['repeat'] == 1 or args['repeat'] == 0:
         main()
     else:
+        args['skip_update_check'] = True
         for i in range(args['repeat']):
             try:
                 logging.info(f'------------ Initializing of {i+1} start ------------')
                 console_log(f'\n{Fore.MAGENTA}------------ Initializing of {Fore.YELLOW}{i+1} {Fore.MAGENTA}start ------------{Fore.RESET}\n', silent_mode=SILENT_MODE)
                 if i == 0: # the first run sets up the environment for subsequent runs, speeding them up
                     main(disable_exit=True)
-                    args['skip_update_check'] = True
+                    args['skip_webdriver_menu'] = True
                 elif i+1 == args['repeat']:
                     main()
                 else:
                     main(disable_exit=True)
             except KeyboardInterrupt:
-                exit_program(0)
+                exit_program(0, DRIVER)
